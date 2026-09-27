@@ -1,0 +1,29 @@
+[project]
+name = "knowledge-base"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "yongyuexinchen", email = "yongyuexinchen@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "colorlog>=6.10.1",
+    "fastapi>=0.136.1",
+    "grandalf>=0.8",
+    "langchain>=1.2.16",
+    "langchain-openai>=1.2.1",
+    "langchain-text-splitters>=1.1.2",
+    "langgraph>=1.1.10",
+    "minio>=7.2.20",
+    "numpy>=2.4.4",
+    "pymongo>=4.17.0",
+    "python-dotenv>=1.2.2",
+]
+
+
+[project.scripts]
+knowledge-base = "knowledge_base:main"
+
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13.0"]
+build-backend = "uv_build"
