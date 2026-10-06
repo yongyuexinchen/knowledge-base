@@ -1,3 +1,5 @@
+# test/02_dataclass_field.py
+
 from dataclasses import dataclass, field
 
 
@@ -13,18 +15,31 @@ class User:
     tags: list = field(default_factory=list)
 
 
-print("测试1：只提供必须字段")
-user1 = User("小美")
-print(f"user1 > {user1}")
+# --- 开始测试 ---
 
-print("测试2：只提供必须字段")
-user2 = User("小帅", 20, ["程序员", "学生"])
-print(f"user2 > {user2}")
+print("--- 测试 1: 只提供必需字段 ---")
+user1 = User("Alice")
+print(f"user1: {user1}")
+# 输出: user1: User(username='Alice', age=18, tags=[])
 
-user3 = User("李华")
-user4 = User("韩梅梅")
+print("\n--- 测试 2: 提供所有字段 ---")
+user2 = User("Bob", 25, ["developer", "pythonist"])
+print(f"user2: {user2}")
+# 输出: user2: User(username='Bob', age=25, tags=['developer', 'pythonist'])
 
-user4.tags.append("学生")
+print("\n--- 测试 3: 验证可变默认值的独立性 ---")
+# 这是使用 field(default_factory=list) 的关键原因
+user3 = User("Charlie")
+user4 = User("David")
 
-print(f"user3 > {user3}")
-print(f"user4 > {user4}")
+# 修改 user3 的 tags 列表
+user3.tags.append("new_tag")
+
+print(f"user3.tags: {user3.tags}")
+print(f"user4.tags: {user4.tags}")
+
+# 如果这里使用的是 tags: list = []，那么 user4.tags 也会包含 'new_tag'
+# 但因为使用了 default_factory，每个实例都有自己独立的列表
+# 输出:
+# user3.tags: ['new_tag']
+# user4.tags: []

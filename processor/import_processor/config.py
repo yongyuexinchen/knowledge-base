@@ -116,6 +116,14 @@ class ImportConfig:
     #   键不存在时 os.getenv 返回 None，而字段声明的类型是 str ——
     #   后面 None.xxx 就会报 AttributeError。给个空串兜底，错得明白。
 
+    # ==================== MinerU 配置 ====================
+    mineru_api_token: str = field(
+        default_factory=lambda: os.getenv("MINERU_API_TOKEN", "")
+    )
+    mineru_base_url: str = field(
+        default_factory=lambda: os.getenv("MINERU_BASE_URL", "")
+    )
+
     openai_api_base: str = field(
         default_factory=lambda: os.getenv("OPENAI_API_BASE", "")
     )
@@ -203,6 +211,9 @@ class ImportConfig:
     # 【值从哪来】.env 的 MINIO_BUCKET_NAME（注意键名带 _NAME 后缀）
     # 【谁读】③⑦
     # 【说明】bucket（桶）≈ 顶层目录
+    minio_img_dir: str = field(
+        default_factory=lambda: os.getenv("MINIO_IMG_DIR", "")
+    )
 
     minio_secure: bool = False
     # 【值从哪来】写死 False（不走 .env）—— 本地开发用 http 即可

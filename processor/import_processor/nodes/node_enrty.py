@@ -2,8 +2,12 @@
 # ⚠️ 文件名拼错了：entry（入口）被写成了 enrty。
 #    类名 NodeEntry 是对的。建议把文件重命名为 node_entry.py
 #    （IDE 里 Shift+F6 会自动改所有引用），否则以后按名字找文件会踩空。
+import json
+import logging
+from pathlib import Path
 
-from processor.import_processor.base import BaseNode
+from processor.import_processor.base import BaseNode, setup_logging
+from processor.import_processor.exceptions import ValidationError, StateFieldError, FileProcessingError
 from processor.import_processor.state import ImportGraphState
 
 
@@ -87,6 +91,33 @@ class NodeEntry(BaseNode):
         # 这是 LangGraph 的关键规则：**节点返回什么，就只更新什么**。
         # 返回的字典会被合并进总 state，没提到的字段保持原值不动。
         # 所以不用（也不应该）把整个 state 复制一遍再改两个键。
+        import_file_path = state.get("import_file_path")
+        # import_file_path = state["import_file_path"] #这样写的话字段不存在直接报错
+        # 判断路径是否为空
+        if not import_file_path:
+            raise  StateFieldError(field_name='import_file_path',expected_type=str)
+
+        # 2. 转换Path标准化对象
+        import_file_path_obj = Path(import_file_path)
+        # 判断文件是否存在
+        if not import_file_path_obj.exists():
+            raise FileProcessingError(message=f"文件{import_file_path_obj.name}不存在")
+
+        if import_file_path_obj.suffix == ".pdf":
+            state["is_pdf_read_enabled"] = True
+            state["pdf_path"] = import_file_path
+        elif import_file_path_obj.suffix == ".md":
+            state["is_md_read_enabled"] = True
+            state["md_path"] = import_file_path
+        else:
+            raise  ValidationError(message=f"该文件的后缀格式{import_file_path_obj.suffix}不支持")
+        # 4. 获取上传文件的标题，更新到state中
+        state["file_title"] = import_file_path_obj.stem
+
+        # 5. 返回state
+        return state
+
+
         return {
             "is_md_read_enabled": True,    # 点亮"读 MD"开关 → 路由会跳过 PDF 转换
             "is_pdf_read_enabled": False   # 熄灭 PDF 开关
@@ -99,3 +130,5 @@ class NodeEntry(BaseNode):
         #      因为列表是"同一个对象"，在返回之前总 state 就已经被改了。
         #      中途一出错，就留下一份"改了一半"的脏数据，还查不出是谁改的。
         # 结论：节点只返回**自己负责改动的字段**，边界清楚、好排查。
+
+

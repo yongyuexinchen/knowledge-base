@@ -25,6 +25,7 @@ class KBImportWorkflow:
         """
         self._compiled_graph = None
 
+    #把方法伪装成属性，只有在代码里读取 self.graph 时才会执行里面的逻辑。
     @property
     def graph(self):
         """
@@ -35,9 +36,11 @@ class KBImportWorkflow:
             self._compiled_graph = self.build_graph()
         return self._compiled_graph
 
+
     def build_graph(self):
 
         # 1.初始化图（工作流）
+        #直接拿ImportGraphState类的函数
         graph = StateGraph (ImportGraphState)
 
         # 2.在图中注册节点
@@ -94,11 +97,12 @@ if __name__ == '__main__':
     #激活全局日志
     setup_logging()
 
-    init_state = {"import_file_path": "一个文件.pdf"}
+    init_state = {"import_file_path": r"E:\doc\hak180产品安全手册.pdf"}
     workflow = KBImportWorkflow()
     final_state = workflow.run(init_state)
 
     logging.getLogger().info(final_state)
+
 
     # 打印编译后的图结构
     logging.getLogger().info(workflow.graph.get_graph().draw_ascii())
